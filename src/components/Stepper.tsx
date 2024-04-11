@@ -5,7 +5,7 @@ interface StepperProps {
   activeStep: number;
 }
 
-export const steps = ['Name', 'Number of Wheels', 'Type of Vehicle', 'Specific Model', 'Date Range'];
+export const steps = ['Name', 'Number of Wheels', 'Type of Vehicle', 'Specific Model', 'Date Range', 'Success'];
 
 const Stepper: React.FC<StepperProps> = ({ activeStep }) => {
   return (
