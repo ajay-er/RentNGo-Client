@@ -1,27 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
+
+import { VehicleType } from '@/types';
 
 interface VehicleTypeStepProps {
   formData: {
-    vehicleType: string;
+    vehicleType: VehicleType;
   };
   onChange: (newData: any) => void;
-  vehicleTypes: string[]; // This should be fetched from the database
+  vehicleTypes: VehicleType[];
 }
 
 const VehicleTypeStep: React.FC<VehicleTypeStepProps> = ({ formData, onChange, vehicleTypes }) => {
-  const handleVehicleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ vehicleType: e.target.value });
+  const [selectedId, setSelectedId] = useState(formData.vehicleType.typeId);
+
+  const handleTypeIdClick = (typeId: number) => {
+    onChange({ typeId });
+    setSelectedId(typeId);
   };
 
   return (
-    <div>
+    <div className="grid grid-cols-3 gap-4">
       {vehicleTypes.map((type) => (
-        <label key={type}>
-          <input type="radio" value={type} checked={formData.vehicleType === type} onChange={handleVehicleTypeChange} />
-          {type}
-        </label>
+        <div
+          key={type.typeId}
+          className={`relative border-2 rounded-md overflow-hidden ${
+            selectedId === type.typeId ? 'border-blue-500' : 'border-gray-300'
+          }`}
+          onClick={() => handleTypeIdClick(type.typeId)}
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300"></div>
+          <div className="relative z-10 p-4">
+            <p>{type.typeName}</p>
+          </div>
+        </div>
       ))}
-      <div>hello</div>
     </div>
   );
 };

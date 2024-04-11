@@ -10,28 +10,37 @@ import { steps } from '@/components/Stepper';
 import VehicleModelStep from '@/components/VehicleModelStep';
 import VehicleTypeStep from '@/components/VehicleTypeStep';
 import WheelsStep from '@/components/WheelsStep';
-import { fetchVehicleTypes } from '@/services/api';
+import { fetchVehicleModels, fetchVehicleTypes } from '@/services/api';
+import { Vehicle, VehicleType } from '@/types';
 
 const Page: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    wheels: '',
-    vehicleType: '',
-    vehicleModel: '',
+    wheels: '2',
+    vehicleType: { typeId: 0, typeName: '' },
+    vehicleModel: { id: 0, vehicleName: '' },
+    typeId: 0,
     vehicleId: 0,
     startDate: null,
     endDate: null,
   });
   const [nameFieldsValid, setNameFieldsValid] = useState(false);
-  const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
+  const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
+  const [vehicleModels, setVehicleModels] = useState<Vehicle[]>([]);
 
   const handleNext = async () => {
     if (activeStep === 1) {
-      const data = await fetchVehicleTypes();
+      const data = await fetchVehicleTypes(+formData.wheels);
       setVehicleTypes(data);
     }
+
+    if (activeStep === 2) {
+      const data = await fetchVehicleModels(formData.typeId);
+      setVehicleModels(data);
+    }
+    console.log(formData.vehicleId);
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -58,7 +67,7 @@ const Page: React.FC = () => {
       case 2:
         return <VehicleTypeStep formData={formData} onChange={handleFormDataChange} vehicleTypes={vehicleTypes} />;
       case 3:
-        return <VehicleModelStep formData={formData} onChange={handleFormDataChange} vehicleModels={[]} />;
+        return <VehicleModelStep formData={formData} onChange={handleFormDataChange} vehicleModels={vehicleModels} />;
       case 4:
         return <DateRangePicker formData={formData} onChange={handleFormDataChange} />;
       default:
