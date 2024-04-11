@@ -23,6 +23,7 @@ const Page: React.FC = () => {
     startDate: null,
     endDate: null,
   });
+  const [nameFieldsValid, setNameFieldsValid] = useState(false);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -36,10 +37,16 @@ const Page: React.FC = () => {
     setFormData((prevData) => ({ ...prevData, ...newData }));
   };
 
+  const handleNameFieldsValidation = (isValid: boolean) => {
+    setNameFieldsValid(isValid);
+  };
+
   const getStepContent = (step: number) => {
     switch (step) {
       case 0:
-        return <NameStep formData={formData} onChange={handleFormDataChange} />;
+        return (
+          <NameStep formData={formData} onChange={handleFormDataChange} onValidation={handleNameFieldsValidation} />
+        );
       case 1:
         return <WheelsStep formData={formData} onChange={handleFormDataChange} />;
       case 2:
@@ -68,7 +75,9 @@ const Page: React.FC = () => {
           </button>
         )}
         {activeStep !== steps.length - 1 ? (
-          <button onClick={handleNext}>Next</button>
+          <button onClick={handleNext} disabled={activeStep === 0 && !nameFieldsValid}>
+            Next
+          </button>
         ) : (
           <button disabled className="cursor-not-allowed opacity-50">
             Next
