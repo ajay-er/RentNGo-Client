@@ -1,6 +1,7 @@
 'use client';
 
 import { Stepper } from '@mui/material';
+import Card from '@mui/material/Card';
 import React, { useState } from 'react';
 
 import DateRangePicker from '@/components/DateRangePicker';
@@ -10,7 +11,7 @@ import VehicleModelStep from '@/components/VehicleModelStep';
 import VehicleTypeStep from '@/components/VehicleTypeStep';
 import WheelsStep from '@/components/WheelsStep';
 
-const IndexPage: React.FC = () => {
+const Page: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -18,6 +19,7 @@ const IndexPage: React.FC = () => {
     wheels: '',
     vehicleType: '',
     vehicleModel: '',
+    vehicleId: 0,
     startDate: null,
     endDate: null,
   });
@@ -41,7 +43,7 @@ const IndexPage: React.FC = () => {
       case 1:
         return <WheelsStep formData={formData} onChange={handleFormDataChange} />;
       case 2:
-        return <VehicleTypeStep formData={formData} onChange={handleFormDataChange} vehicleTypes={[]} />;
+        return <VehicleTypeStep formData={formData} onChange={handleFormDataChange} />;
       case 3:
         return <VehicleModelStep formData={formData} onChange={handleFormDataChange} vehicleModels={[]} />;
       case 4:
@@ -52,17 +54,29 @@ const IndexPage: React.FC = () => {
   };
 
   return (
-    <div>
-      <Stepper activeStep={activeStep} />
-      <div>
-        {getStepContent(activeStep)}
-        <div>
-          {activeStep !== 0 && <button onClick={handleBack}>Back</button>}
-          {activeStep !== steps.length - 1 && <button onClick={handleNext}>Next</button>}
-        </div>
+    <div className="h-screen flex flex-col justify-center items-center">
+      <Card className="flex flex-col justify-center items-center min-h-[60%] min-w-[50%]">
+        <Stepper activeStep={activeStep} />
+        <div>{getStepContent(activeStep)}</div>
+      </Card>
+      <div className="w-[50%] mt-4 flex justify-between">
+        {activeStep !== 0 ? (
+          <button onClick={handleBack}>Back</button>
+        ) : (
+          <button disabled className="cursor-not-allowed opacity-50">
+            Back
+          </button>
+        )}
+        {activeStep !== steps.length - 1 ? (
+          <button onClick={handleNext}>Next</button>
+        ) : (
+          <button disabled className="cursor-not-allowed opacity-50">
+            Next
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
-export default IndexPage;
+export default Page;
