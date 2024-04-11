@@ -10,6 +10,7 @@ import { steps } from '@/components/Stepper';
 import VehicleModelStep from '@/components/VehicleModelStep';
 import VehicleTypeStep from '@/components/VehicleTypeStep';
 import WheelsStep from '@/components/WheelsStep';
+import { fetchVehicleTypes } from '@/services/api';
 
 const Page: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -24,8 +25,13 @@ const Page: React.FC = () => {
     endDate: null,
   });
   const [nameFieldsValid, setNameFieldsValid] = useState(false);
+  const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (activeStep === 1) {
+      const data = await fetchVehicleTypes();
+      setVehicleTypes(data);
+    }
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -50,7 +56,7 @@ const Page: React.FC = () => {
       case 1:
         return <WheelsStep formData={formData} onChange={handleFormDataChange} />;
       case 2:
-        return <VehicleTypeStep formData={formData} onChange={handleFormDataChange} />;
+        return <VehicleTypeStep formData={formData} onChange={handleFormDataChange} vehicleTypes={vehicleTypes} />;
       case 3:
         return <VehicleModelStep formData={formData} onChange={handleFormDataChange} vehicleModels={[]} />;
       case 4:
