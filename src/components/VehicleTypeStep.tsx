@@ -11,7 +11,7 @@ interface VehicleTypeStepProps {
 }
 
 const VehicleTypeStep: React.FC<VehicleTypeStepProps> = ({ formData, onChange, vehicleTypes }) => {
-  const [selectedId, setSelectedId] = useState(formData.vehicleType.typeId);
+  const [selectedId, setSelectedId] = useState(formData.vehicleType.id);
 
   const handleTypeIdClick = (typeId: number) => {
     onChange({ typeId });
@@ -22,11 +22,11 @@ const VehicleTypeStep: React.FC<VehicleTypeStepProps> = ({ formData, onChange, v
     <div className="grid grid-cols-3 gap-4">
       {vehicleTypes.map((type) => (
         <div
-          key={type.typeId}
+          key={type.id}
           className={`relative border-2 rounded-md overflow-hidden ${
-            selectedId === type.typeId ? 'border-blue-500' : 'border-gray-300'
+            selectedId === type.id ? 'border-blue-500' : 'border-gray-300'
           }`}
-          onClick={() => handleTypeIdClick(type.typeId)}
+          onClick={() => handleTypeIdClick(type.id)}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300"></div>
           <div className="relative z-10 p-4">

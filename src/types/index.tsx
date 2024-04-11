@@ -1,8 +1,8 @@
 export interface VehicleType {
-  typeId: number;
+  id: number;
   typeName: string;
 }
 export interface Vehicle {
   id: number;
-  vehicleName: string;
+  name: string;
 }

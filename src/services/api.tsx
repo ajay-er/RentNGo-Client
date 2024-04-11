@@ -1,30 +1,20 @@
 import { Vehicle, VehicleType } from '@/types';
 
+const API_BASE_URL = 'http://localhost:8080/api/v1';
+
 export const fetchVehicleTypes = async (wheels: number): Promise<VehicleType[]> => {
   try {
-    // const response = await fetch('http://localhost:8080/api/v1/vehicle/type');
-    // if (!response.ok) {
-    //   throw new Error('Failed to fetch vehicle types');
-    // }
-    // const data = await response.json();
-    // return data.vehicleTypes;
-    console.log(wheels);
-    return new Promise<VehicleType[]>((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { typeId: 1, typeName: 'api' },
-          { typeId: 2, typeName: 'Cruiser' },
-          { typeId: 3, typeName: 'Sedan' },
-          { typeId: 4, typeName: 'SUV' },
-          { typeId: 5, typeName: 'Truck' },
-          { typeId: 6, typeName: 'Convertible' },
-          { typeId: 7, typeName: 'Minivan' },
-          { typeId: 8, typeName: 'Electric' },
-          { typeId: 9, typeName: 'Hybrid' },
-          { typeId: 10, typeName: 'Luxury' },
-        ]);
-      }, 500);
-    });
+    const url = new URL(`${API_BASE_URL}/vehicle/types`);
+    url.searchParams.append('wheels', wheels.toString());
+
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const errorMessage = `Failed to fetch vehicle types. Status: ${response.status} - ${response.statusText}`;
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    return data.responseObject;
   } catch (error) {
     console.error('Error fetching vehicle types:', error);
     throw error;
@@ -33,31 +23,43 @@ export const fetchVehicleTypes = async (wheels: number): Promise<VehicleType[]> 
 
 export const fetchVehicleModels = async (typeId: number): Promise<Vehicle[]> => {
   try {
-    // const response = await fetch('http://localhost:8080/api/v1/vehicle/type');
-    // if (!response.ok) {
-    //   throw new Error('Failed to fetch vehicle types');
-    // }
-    // const data = await response.json();
-    // return data.vehicleTypes;
-    console.log(typeId);
-    return new Promise<Vehicle[]>((resolve) => {
-      setTimeout(() => {
-        resolve([
-          { id: 1, vehicleName: 'Sports' },
-          { id: 2, vehicleName: 'Cruiser' },
-          { id: 3, vehicleName: 'Sedan' },
-          { id: 4, vehicleName: 'SUV' },
-          { id: 5, vehicleName: 'Truck' },
-          { id: 6, vehicleName: 'Convertible' },
-          { id: 7, vehicleName: 'Minivan' },
-          { id: 8, vehicleName: 'Electric' },
-          { id: 9, vehicleName: 'Hybrid' },
-          { id: 10, vehicleName: 'Luxury' },
-        ]);
-      }, 500);
-    });
+    const url = new URL(`${API_BASE_URL}/vehicle/models`);
+    url.searchParams.append('typeId', typeId.toString());
+
+    const response = await fetch(url.toString());
+    if (!response.ok) {
+      const errorMessage = `Failed to fetch vehicle models. Status: ${response.status} - ${response.statusText}`;
+      throw new Error(errorMessage);
+    }
+    const data = await response.json();
+    return data.responseObject;
   } catch (error) {
     console.error('Error fetching vehicle models:', error);
+    throw error;
+  }
+};
+
+export const bookVehicle = async (bookingData: any): Promise<any> => {
+  try {
+    const url = `${API_BASE_URL}/booking/submit`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    if (!response.ok) {
+      const errorMessage = `Failed to book vehicle. Status: ${response.status} - ${response.statusText}`;
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    return data.status === 200;
+  } catch (error) {
+    console.error('Error booking vehicle:', error);
     throw error;
   }
 };

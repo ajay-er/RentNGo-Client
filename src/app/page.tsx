@@ -7,10 +7,11 @@ import React, { useState } from 'react';
 import DateRangePicker from '@/components/DateRangePicker';
 import NameStep from '@/components/NameStep';
 import { steps } from '@/components/Stepper';
+import LastStep from '@/components/SuccessStep';
 import VehicleModelStep from '@/components/VehicleModelStep';
 import VehicleTypeStep from '@/components/VehicleTypeStep';
 import WheelsStep from '@/components/WheelsStep';
-import { fetchVehicleModels, fetchVehicleTypes } from '@/services/api';
+import { bookVehicle, fetchVehicleModels, fetchVehicleTypes } from '@/services/api';
 import { Vehicle, VehicleType } from '@/types';
 
 const Page: React.FC = () => {
@@ -19,8 +20,8 @@ const Page: React.FC = () => {
     firstName: '',
     lastName: '',
     wheels: '2',
-    vehicleType: { typeId: 0, typeName: '' },
-    vehicleModel: { id: 0, vehicleName: '' },
+    vehicleType: { id: 0, typeName: '' },
+    vehicleModel: { id: 0, name: '' },
     typeId: 0,
     vehicleId: 0,
     startDate: null,
@@ -29,6 +30,8 @@ const Page: React.FC = () => {
   const [nameFieldsValid, setNameFieldsValid] = useState(false);
   const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
   const [vehicleModels, setVehicleModels] = useState<Vehicle[]>([]);
+  const [successOrFail, setSuccessOrFail] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>('');
 
   const handleNext = async () => {
     if (activeStep === 1) {
@@ -40,7 +43,54 @@ const Page: React.FC = () => {
       const data = await fetchVehicleModels(formData.typeId);
       setVehicleModels(data);
     }
-    console.log(formData.vehicleId);
+
+    if (activeStep === 4) {
+      const data = await bookVehicle({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        vehicleId: formData.vehicleId,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+      });
+      if (data) {
+        setSuccessOrFail(true);
+        setMessage('Vehicle booked successfully!');
+        setFormData({
+          firstName: '',
+          lastName: '',
+          wheels: '2',
+          vehicleType: { id: 0, typeName: '' },
+          vehicleModel: { id: 0, name: '' },
+          typeId: 0,
+          vehicleId: 0,
+          startDate: null,
+          endDate: null,
+        });
+        setVehicleTypes([]);
+        setVehicleModels([]);
+        setTimeout(() => {
+          setFormData({
+            firstName: '',
+            lastName: '',
+            wheels: '2',
+            vehicleType: { id: 0, typeName: '' },
+            vehicleModel: { id: 0, name: '' },
+            typeId: 0,
+            vehicleId: 0,
+            startDate: null,
+            endDate: null,
+          });
+          setVehicleTypes([]);
+          setVehicleModels([]);
+          setActiveStep(0);
+        }, 5000);
+        return;
+      } else {
+        setSuccessOrFail(false);
+        setMessage('Failed to book vehicle. Please try again.');
+      }
+    }
+
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
@@ -70,6 +120,8 @@ const Page: React.FC = () => {
         return <VehicleModelStep formData={formData} onChange={handleFormDataChange} vehicleModels={vehicleModels} />;
       case 4:
         return <DateRangePicker formData={formData} onChange={handleFormDataChange} />;
+      case 5:
+        return <LastStep isSuccess={successOrFail} message={message} />;
       default:
         return null;
     }

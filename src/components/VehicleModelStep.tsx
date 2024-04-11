@@ -30,7 +30,7 @@ const VehicleModelStep: React.FC<VehicleModelStepProps> = ({ formData, onChange,
         >
           <div className="absolute inset-0 bg-gradient-to-br from-blue-200 to-blue-300"></div>
           <div className="relative z-10 p-4">
-            <p>{type.vehicleName}</p>
+            <p>{type.name}</p>
           </div>
         </div>
       ))}
