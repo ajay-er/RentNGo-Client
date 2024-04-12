@@ -15,9 +15,9 @@ const NameStep: React.FC<NameStepProps> = ({ formData, onChange, onValidation })
   const [lastNameError, setLastNameError] = useState<string | null>(null);
 
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    onChange({ firstName: value });
-    if (!value.trim()) {
+    const value = e.target.value.trim();
+    onChange({ ...formData, firstName: value });
+    if (!value) {
       setFirstNameError('First name is required');
     } else if (!/^[a-zA-Z ]+$/.test(value)) {
       setFirstNameError('Invalid characters');
@@ -28,9 +28,9 @@ const NameStep: React.FC<NameStepProps> = ({ formData, onChange, onValidation })
   };
 
   const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    onChange({ lastName: value });
-    if (!value.trim()) {
+    const value = e.target.value.trim();
+    onChange({ ...formData, lastName: value });
+    if (!value) {
       setLastNameError('Last name is required');
     } else if (!/^[a-zA-Z ]+$/.test(value)) {
       setLastNameError('Invalid characters');
@@ -41,7 +41,7 @@ const NameStep: React.FC<NameStepProps> = ({ formData, onChange, onValidation })
   };
 
   const validateForm = () => {
-    if (!firstNameError && !lastNameError) {
+    if (formData.firstName.trim() && !firstNameError && formData.lastName.trim() && !lastNameError) {
       onValidation(true);
     } else {
       onValidation(false);
@@ -50,7 +50,7 @@ const NameStep: React.FC<NameStepProps> = ({ formData, onChange, onValidation })
 
   return (
     <div>
-      <p className="font-extrabold mb-6 text-4xl">First, What's Your Name?</p>
+      <p className="font-extrabold mb-6 m-2 text-4xl">First, What's Your Name?</p>
       <TextField
         type="text"
         value={formData.firstName}
@@ -60,7 +60,7 @@ const NameStep: React.FC<NameStepProps> = ({ formData, onChange, onValidation })
         label="FIRST NAME"
         error={!!firstNameError}
         helperText={firstNameError}
-        sx={{ mb: 4 }}
+        sx={{ mb: 2 }}
       />
       <TextField
         type="text"

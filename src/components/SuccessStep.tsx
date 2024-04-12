@@ -1,14 +1,9 @@
 import React from 'react';
 
-interface LastStepProps {
-  isSuccess: boolean;
-  message: string;
-}
-
-const LastStep: React.FC<LastStepProps> = ({ isSuccess, message }) => {
+const LastStep: React.FC = () => {
   return (
-    <div className={`text-center ${isSuccess ? 'text-green-600' : 'text-red-600'}`}>
-      <p>{message}</p>
+    <div className="items-center">
+      <p className="text-3xl font-extrabold text-green-400">Vehicle book successfully</p>
     </div>
   );
 };

@@ -1,49 +1,43 @@
 'use client';
 
-import { Stepper } from '@mui/material';
+import { Snackbar, Stepper } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 import Card from '@mui/material/Card';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import DateRangePicker from '@/components/DateRangePicker';
 import NameStep from '@/components/NameStep';
-import { steps } from '@/components/Stepper';
 import LastStep from '@/components/SuccessStep';
 import VehicleModelStep from '@/components/VehicleModelStep';
 import VehicleTypeStep from '@/components/VehicleTypeStep';
 import WheelsStep from '@/components/WheelsStep';
-import { bookVehicle, fetchVehicleModels, fetchVehicleTypes } from '@/services/api';
-import { Vehicle, VehicleType } from '@/types';
+import { bookVehicle } from '@/services/api';
 
 const Page: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    wheels: '2',
-    vehicleType: { id: 0, typeName: '' },
-    vehicleModel: { id: 0, name: '' },
+    wheels: 2,
     typeId: 0,
     vehicleId: 0,
     startDate: null,
     endDate: null,
   });
   const [nameFieldsValid, setNameFieldsValid] = useState(false);
-  const [vehicleTypes, setVehicleTypes] = useState<VehicleType[]>([]);
-  const [vehicleModels, setVehicleModels] = useState<Vehicle[]>([]);
-  const [successOrFail, setSuccessOrFail] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
+  const [typeSelection, setTypeSelection] = useState(false);
+  const [modelSelection, setModelSelection] = useState(false);
+  const [DateSelection, setDateSelection] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (error) {
+      setOpen(true);
+    }
+  }, [error]);
 
   const handleNext = async () => {
-    if (activeStep === 1) {
-      const data = await fetchVehicleTypes(+formData.wheels);
-      setVehicleTypes(data);
-    }
-
-    if (activeStep === 2) {
-      const data = await fetchVehicleModels(formData.typeId);
-      setVehicleModels(data);
-    }
-
     if (activeStep === 4) {
       const data = await bookVehicle({
         firstName: formData.firstName,
@@ -52,50 +46,16 @@ const Page: React.FC = () => {
         startDate: formData.startDate,
         endDate: formData.endDate,
       });
-      if (data) {
-        setSuccessOrFail(true);
-        setMessage('Vehicle booked successfully!');
-        setFormData({
-          firstName: '',
-          lastName: '',
-          wheels: '2',
-          vehicleType: { id: 0, typeName: '' },
-          vehicleModel: { id: 0, name: '' },
-          typeId: 0,
-          vehicleId: 0,
-          startDate: null,
-          endDate: null,
-        });
-        setVehicleTypes([]);
-        setVehicleModels([]);
-        setTimeout(() => {
-          setFormData({
-            firstName: '',
-            lastName: '',
-            wheels: '2',
-            vehicleType: { id: 0, typeName: '' },
-            vehicleModel: { id: 0, name: '' },
-            typeId: 0,
-            vehicleId: 0,
-            startDate: null,
-            endDate: null,
-          });
-          setVehicleTypes([]);
-          setVehicleModels([]);
-          setActiveStep(0);
-        }, 5000);
+      if (data.success) {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
         return;
       } else {
-        setSuccessOrFail(false);
-        setMessage('Failed to book vehicle. Please try again.');
+        setError(data.message);
+        return;
       }
     }
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleFormDataChange = (newData: any) => {
@@ -104,6 +64,18 @@ const Page: React.FC = () => {
 
   const handleNameFieldsValidation = (isValid: boolean) => {
     setNameFieldsValid(isValid);
+  };
+
+  const handleTypeSelection = (isValid: boolean) => {
+    setTypeSelection(isValid);
+  };
+
+  const handleModelSelection = (isValid: boolean) => {
+    setModelSelection(isValid);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   const getStepContent = (step: number) => {
@@ -115,43 +87,77 @@ const Page: React.FC = () => {
       case 1:
         return <WheelsStep formData={formData} onChange={handleFormDataChange} />;
       case 2:
-        return <VehicleTypeStep formData={formData} onChange={handleFormDataChange} vehicleTypes={vehicleTypes} />;
+        return (
+          <VehicleTypeStep
+            formData={formData}
+            onChange={handleFormDataChange}
+            onValidation={handleTypeSelection}
+            setError={setError}
+          />
+        );
       case 3:
-        return <VehicleModelStep formData={formData} onChange={handleFormDataChange} vehicleModels={vehicleModels} />;
+        return (
+          <VehicleModelStep
+            formData={formData}
+            onChange={handleFormDataChange}
+            onValidation={handleModelSelection}
+            setError={setError}
+          />
+        );
       case 4:
-        return <DateRangePicker formData={formData} onChange={handleFormDataChange} />;
+        return (
+          <DateRangePicker
+            formData={formData}
+            onChange={handleFormDataChange}
+            setError={setError}
+            onValidation={setDateSelection}
+          />
+        );
       case 5:
-        return <LastStep isSuccess={successOrFail} message={message} />;
+        return <LastStep />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center">
-      <Card className="flex flex-col justify-center items-center min-h-[60%] min-w-[50%]">
-        <Stepper activeStep={activeStep} />
-        <div>{getStepContent(activeStep)}</div>
-      </Card>
-      <div className="w-[50%] mt-4 flex justify-between">
-        {activeStep !== 0 ? (
-          <button onClick={handleBack}>Back</button>
-        ) : (
-          <button disabled className="cursor-not-allowed opacity-50">
-            Back
+    <>
+      {error && (
+        <Snackbar key={error} open={open} autoHideDuration={6000} onClose={handleClose}>
+          <MuiAlert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+            {error}
+          </MuiAlert>
+        </Snackbar>
+      )}
+      <div className="h-screen flex flex-col justify-center items-center">
+        <Card className="flex flex-col p-4 items-center h-1/2 w-1/2">
+          <Stepper activeStep={activeStep} />
+          <div>{getStepContent(activeStep)}</div>
+        </Card>
+        <div className="w-[50%] mt-4 flex justify-between">
+          <button
+            className={`text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 w-full ${
+              (activeStep === 0 && !nameFieldsValid) ||
+              (activeStep === 2 && !typeSelection) ||
+              (activeStep === 3 && !modelSelection) ||
+              (activeStep === 4 && !DateSelection)
+                ? 'opacity-50 cursor-not-allowed'
+                : ''
+            }`}
+            onClick={handleNext}
+            disabled={
+              (activeStep === 0 && !nameFieldsValid) ||
+              (activeStep === 2 && !typeSelection) ||
+              (activeStep === 3 && !modelSelection) ||
+              (activeStep === 4 && !DateSelection) ||
+              activeStep === 5
+            }
+          >
+            {activeStep === 5 ? '✅' : activeStep === 4 ? 'Book' : 'Next'}
           </button>
-        )}
-        {activeStep !== steps.length - 1 ? (
-          <button onClick={handleNext} disabled={activeStep === 0 && !nameFieldsValid}>
-            Next
-          </button>
-        ) : (
-          <button disabled className="cursor-not-allowed opacity-50">
-            Next
-          </button>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
